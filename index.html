@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eventos Cerca - Prototipo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <header class="topbar" role="banner">
+    <div class="topbar__inner">
+      <div class="brand" aria-label="Eventos Cerca">
+        <span class="brand__dot" aria-hidden="true"></span>
+        <span class="brand__name">Eventos Cerca</span>
+      </div>
+      <button id="btnOpenSearch" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="searchDialog">
+        <span aria-hidden="true">🔎</span><span class="sr-only">Abrir búsqueda y filtros</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Navegación principal">
+    <a class="tab" href="#/eventos" data-route="eventos" aria-current="page">Eventos</a>
+    <a class="tab" href="#/buscar" data-route="buscar">Buscar</a>
+    <a class="tab" href="#/milista" data-route="milista">Mi lista</a>
+    <a class="tab" href="#/perfil" data-route="perfil">Perfil</a>
+  </nav>
+
+  <main id="main" class="main" tabindex="-1">
+    <!-- Eventos -->
+    <section id="screenEventos" class="screen" aria-labelledby="hEventos">
+      <h1 id="hEventos">Eventos cercanos</h1>
+
+      <div class="search-row">
+        <label class="sr-only" for="q">Buscar</label>
+        <input id="q" name="q" type="search" placeholder="Buscar conciertos, teatro, exposiciones..." autocomplete="off" />
+        <button class="btn" type="button" id="btnGoSearch">Filtrar</button>
+      </div>
+
+      <div class="chips" role="list" aria-label="Accesos rápidos">
+        <button class="chip" type="button" data-quick="hoy">Hoy</button>
+        <button class="chip" type="button" data-quick="semana">Esta semana</button>
+        <button class="chip" type="button" data-quick="gratis">Gratis</button>
+        <button class="chip" type="button" data-quick="cerca">Cerca de mí</button>
+      </div>
+
+      <div class="meta-row" aria-live="polite">
+        <span id="resultsCount">0 resultados</span>
+        <button class="link" type="button" id="btnClear">Borrar filtros</button>
+      </div>
+
+      <ul id="eventsList" class="cards" aria-label="Listado de eventos"></ul>
+    </section>
+
+    <!-- Buscar / Filtros -->
+    <section id="screenBuscar" class="screen" aria-labelledby="hBuscar" hidden>
+      <h1 id="hBuscar">Buscar y filtrar</h1>
+
+      <form id="filtersForm" class="form" novalidate>
+        <div class="field">
+          <label for="fCategory">Categoría</label>
+          <select id="fCategory" name="category">
+            <option value="todas">Todas</option>
+            <option value="musica">Música</option>
+            <option value="teatro">Teatro</option>
+            <option value="exposicion">Exposición</option>
+            <option value="cine">Cine</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="fWhen">Fecha</label>
+          <select id="fWhen" name="when">
+            <option value="cualquiera">Cualquiera</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+          </select>
+        </div>
+
+        <fieldset class="field">
+          <legend>Ubicación</legend>
+          <div class="row">
+            <label for="fCity">Ciudad</label>
+            <input id="fCity" name="city" type="text" placeholder="Ej.: Madrid" />
+          </div>
+          <div class="row">
+            <label for="fRadius">Radio (km)</label>
+            <input id="fRadius" name="radius" type="number" min="1" max="50" value="5" />
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button class="btn" type="submit">Aplicar filtros</button>
+          <button class="btn btn--secondary" type="button" id="btnPreview">Ver resultados</button>
+        </div>
+
+        <p class="hint" id="a11yHint">
+          Accesibilidad: todos los controles tienen etiqueta, el foco es visible y puedes navegar con teclado (Tab/Shift+Tab).
+        </p>
+      </form>
+    </section>
+
+    <!-- Detalle -->
+    <section id="screenDetalle" class="screen" aria-labelledby="hDetalle" hidden>
+      <a class="link" href="#/eventos">← Volver al listado</a>
+      <h1 id="hDetalle">Detalle del evento</h1>
+
+      <article class="detail" aria-label="Información del evento">
+        <div class="detail__hero" role="img" aria-label="Imagen del evento (marcador de posición)"></div>
+
+        <h2 id="dTitle">Título</h2>
+        <p class="muted" id="dMeta">Fecha y precio</p>
+        <p id="dPlace">Lugar</p>
+
+        <div class="actions">
+          <button class="btn" type="button" id="btnAdd">Añadir a mi lista</button>
+          <button class="btn btn--secondary" type="button" id="btnReserve">Reservar</button>
+        </div>
+
+        <h3>Descripción</h3>
+        <p id="dDesc"></p>
+
+        <h3>Accesibilidad</h3>
+        <ul>
+          <li id="dA11y"></li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- Mi lista -->
+    <section id="screenMiLista" class="screen" aria-labelledby="hMiLista" hidden>
+      <h1 id="hMiLista">Mi lista</h1>
+      <p class="muted">Eventos guardados. Se almacenan localmente en este navegador (LocalStorage).</p>
+      <ul id="myList" class="list" aria-label="Eventos en mi lista"></ul>
+      <div class="actions">
+        <button class="btn btn--secondary" type="button" id="btnExport">Exportar lista (JSON)</button>
+      </div>
+      <pre id="exportOut" class="code" aria-live="polite" hidden></pre>
+    </section>
+
+    <!-- Perfil -->
+    <section id="screenPerfil" class="screen" aria-labelledby="hPerfil" hidden>
+      <h1 id="hPerfil">Perfil</h1>
+
+      <div class="profile">
+        <div class="avatar" aria-hidden="true">👤</div>
+        <div>
+          <p class="profile__name">Usuario demo</p>
+          <p class="muted">demo@eventos.app</p>
+        </div>
+      </div>
+
+      <h2>Preferencias</h2>
+      <div class="form">
+        <div class="field">
+          <label for="pHighContrast">Modo alto contraste</label>
+          <input id="pHighContrast" type="checkbox" />
+        </div>
+        <div class="field">
+          <label for="pReduceMotion">Reducir animaciones</label>
+          <input id="pReduceMotion" type="checkbox" />
+        </div>
+      </div>
+
+      <h2>Autoevaluación rápida</h2>
+      <ul class="list">
+        <li>✅ Navegación consistente (tabs fijas).</li>
+        <li>✅ Formularios con etiquetas y mensajes claros.</li>
+        <li>✅ Compatible con teclado y foco visible.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Dialogo de búsqueda (opcional) -->
+  <dialog id="searchDialog" aria-labelledby="dlgTitle">
+    <form method="dialog" class="dialog">
+      <h2 id="dlgTitle">Búsqueda y filtros</h2>
+      <p class="muted">Atajo: abre esta ventana con el botón 🔎 del encabezado.</p>
+      <div class="actions">
+        <button class="btn" value="close">Cerrar</button>
+        <a class="btn btn--secondary" href="#/buscar">Ir a pantalla de filtros</a>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="footer" role="contentinfo">
+    <small>
+      Prototipo educativo. Para evaluar accesibilidad: WAVE y axe DevTools.
+    </small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
